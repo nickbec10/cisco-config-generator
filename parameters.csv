@@ -1,0 +1,6 @@
+site_id,ip_address,gw_address,mask,area_code,plar,site_nxx,domain,username,password,snmp_ro,snmp_ip,snmp_key,tacacs_ip,tacacs_key,pots,cucm_1,cucm_2,ntp_1
+ABC,10.23.55.6,10.23.55.1,255.255.255.0,864,8022000,802,xyz.com,admin,abc123,xyz789,10.10.10.10,brdstnbdsrthbdsrthrst,10.10.10.11,sfsvasrgheatgbserg,8645555555,10.10.20.10,10.10.20.11,10..10.10.12
+DEF,10.24.56.6,10.24.56.1,255.255.255.0,580,6501200,650,xyz.com,admin,abc123,xyz789,10.10.10.10,brdstnbdsrthbdsrthrst,10.10.10.11,sfsvasrgheatgbserg,5805555555,10.10.20.10,10.10.20.12,10..10.10.12
+GHI,10.25.57.229,10.25.57.225,255.255.255.240,336,2827100,282,xyz.com,admin,abc123,xyz789,10.10.10.10,brdstnbdsrthbdsrthrst,10.10.10.11,sfsvasrgheatgbserg,3365555555,10.10.20.10,10.10.20.13,10..10.10.12
+JKL,10.26.58.6,10.26.58.1,255.255.255.0,803,8585000,858,xyz.com,admin,abc123,xyz789,10.10.10.10,brdstnbdsrthbdsrthrst,10.10.10.11,sfsvasrgheatgbserg,8035555555,10.10.20.10,10.10.20.14,10..10.10.12
+MNO,10.27.59.229,10.27.59.225,255.255.255.240,704,4829333,482,xyz.com,admin,abc123,xyz789,10.10.10.10,brdstnbdsrthbdsrthrst,10.10.10.11,sfsvasrgheatgbserg,7045555555,10.10.20.10,10.10.20.15,10..10.10.12

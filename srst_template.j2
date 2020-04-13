@@ -1,0 +1,402 @@
+service timestamps debug datetime localtime
+service timestamps log datetime localtime
+service password-encryption
+no platform punt-keepalive disable-kernel-core
+service sequence-numbers
+no service dhcp
+!
+hostname {{ site_id }}_4431VG
+ip domain name {{ domain }}
+crypto key gen rsa mod 2048
+license accept end user agreement
+yes
+!
+!
+enable secret 5 {{ secret }}
+!
+aaa new-model
+!
+!
+aaa authentication login default group tacacs+ local
+aaa authentication enable default group tacacs+ enable
+aaa authorization config-commands
+aaa authorization exec default group tacacs+ local
+aaa accounting exec default start-stop group tacacs+
+aaa accounting commands 15 default start-stop group tacacs+
+!
+!
+!
+aaa session-id common
+clock timezone EST -5 0
+clock summer-time EDT recurring
+!
+ip multicast-routing distributed
+!
+!
+!
+trunk group {{ site_id }}_trunkgroup
+ description Hunt Group for FXO Ports
+ hunt-scheme sequential
+ translation-profile incoming Incoming
+!
+!
+!
+voice rtp send-recv
+!
+voice service voip
+ no ip address trusted authenticate
+ y
+ allow-connections h323 to h323
+ allow-connections h323 to sip
+ allow-connections sip to h323
+ allow-connections sip to sip
+ supplementary-service h450.12
+ fax protocol t38 version 0 ls-redundancy 0 hs-redundancy 0 fallback none
+ modem passthrough nse codec g711ulaw
+ h323
+  no h245 simultaneous-connection-handle
+ sip
+  registrar server expires max 1200 min 300
+!
+voice class codec 1
+ codec preference 2 g711ulaw
+!
+voice class h323 1
+  h225 timeout tcp establish 3
+!
+!
+!
+!
+!
+voice register global
+ mode esrst
+ no allow-hash-in-dn
+ system message "SRST HAS STARTED"
+ max-dn 100
+ max-pool 100
+ source-address {{ ip_address }} port 5060
+!
+voice register pool  1
+ id network 0.0.0.0 mask 0.0.0.0
+ no vad
+!
+!
+voice translation-rule 1
+ rule 1 /^9/ //
+!
+voice translation-rule 2
+ rule 1 /\({{ area_code }}.......\)/ /9\1/
+ rule 2 /\(..........\)/ /91\1/
+!
+voice translation-profile Incoming
+ translate calling 2
+!
+voice translation-profile STRIP-9
+translate called 1
+!
+!
+!
+application
+ global
+  service alternate Default
+ !
+!
+!
+!
+!
+!
+spanning-tree portfast default
+spanning-tree extend system-id
+!
+username {{ username }} priv 15 password {{ password }}
+!
+!
+!
+!
+!
+class-map match-any Voice-Signaling
+ match dscp cs3  af31
+ match protocol skinny
+class-map match-any Voice-Media
+ match protocol rtp audio
+ match dscp ef
+!
+policy-map LLQ
+ class Voice-Signaling
+  bandwidth percent 5
+  set ip dscp cs3
+ class Voice-Media
+  bandwidth percent 33
+  set ip dscp ef
+ class class-default
+  random-detect dscp-based
+  fair-queue
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ description Loopback for SRST MOH to PSTN (No Routing External)
+ ip address 1.1.1.1 255.255.255.255
+!
+interface GigabitEthernet0/0/0
+ description {{ site_id }} Voice
+ ip address {{ ip_address }} {{ mask }}
+ ip pim sparse-dense-mode
+ ip igmp static-group 239.1.1.1
+ media-type rj45
+ no negotiation auto
+ duplex full
+ speed 1000
+ h323-gateway voip interface
+ h323-gateway voip bind srcaddr {{ ip_address }}
+ no shutdown
+!
+!
+ip forward-protocol nd
+no ip http server
+ip http access-class 23
+ip http authentication local
+no ip http secure-server
+ip http timeout-policy idle 60 life 86400 requests 10000
+ip tftp source-interface GigabitEthernet0
+ip route 0.0.0.0 0.0.0.0 {{ gw_address }}
+!
+!
+logging trap warnings
+logging source-interface GigabitEthernet0/0/0
+logging 10.58.239.31
+logging 10.58.239.32
+access-list 1 permit 10.225.239.0 0.0.0.255
+access-list 1 permit 10.58.239.0 0.0.0.255
+access-list 3 permit 129.39.142.116
+access-list 3 permit 129.39.142.117
+access-list 3 permit 129.39.142.118
+access-list 3 permit 192.168.249.17
+access-list 3 permit 192.168.249.19
+access-list 3 permit 192.168.249.18
+access-list 3 permit 192.168.249.9
+access-list 3 permit 192.168.249.8
+access-list 3 permit 192.168.249.14
+access-list 3 permit 129.39.143.239
+access-list 3 permit 129.39.143.238
+access-list 3 permit 10.140.145.200
+access-list 3 permit 10.7.199.0 0.0.0.255
+access-list 3 permit 10.18.199.0 0.0.0.255
+access-list 3 permit 10.21.199.0 0.0.0.255
+access-list 3 permit 10.24.199.0 0.0.0.255
+access-list 3 permit 10.25.199.0 0.0.0.255
+access-list 3 permit 10.29.199.0 0.0.0.255
+access-list 3 permit 10.31.199.0 0.0.0.255
+access-list 3 permit 10.41.199.0 0.0.0.255
+access-list 3 permit 10.43.199.0 0.0.0.255
+access-list 3 permit 10.42.199.0 0.0.0.255
+access-list 3 permit 10.45.199.0 0.0.0.255
+access-list 3 permit 10.46.199.0 0.0.0.255
+access-list 3 permit 10.48.199.0 0.0.0.255
+access-list 3 permit 10.50.199.0 0.0.0.255
+access-list 3 permit 10.51.105.0 0.0.0.255
+access-list 3 permit 10.53.199.0 0.0.0.255
+access-list 3 permit 10.60.199.0 0.0.0.255
+access-list 3 permit 10.28.53.0 0.0.0.255
+access-list 3 permit 10.4.31.0 0.0.0.255
+access-list 3 permit 10.5.1.0 0.0.0.255
+access-list 3 permit 10.62.79.0 0.0.0.255
+access-list 3 permit 10.11.14.0 0.0.0.255
+access-list 3 permit 10.11.20.0 0.0.0.255
+access-list 3 permit 10.9.19.0 0.0.0.255
+access-list 3 permit 10.3.31.0 0.0.0.255
+access-list 3 permit 10.47.31.0 0.0.0.255
+access-list 3 permit 10.26.128.0 0.0.0.255
+access-list 3 permit 10.8.25.0 0.0.0.255
+access-list 3 permit 10.0.0.0 0.63.255.255
+access-list 3 permit 10.58.239.0 0.0.0.255
+access-list 3 permit 10.140.246.0 0.0.1.255
+access-list 3 permit 10.140.248.0 0.0.1.255
+access-list 3 permit 10.225.239.0 0.0.0.255
+access-list 23 permit 10.10.10.0 0.0.0.7
+no cdp run
+!
+snmp-server community {{ snmp_ro }} RO 1
+snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
+snmp-server enable traps flash insertion removal
+snmp-server enable traps isdn call-information
+snmp-server enable traps isdn layer2
+snmp-server enable traps isdn chan-not-avail
+snmp-server enable traps isdn ietf
+snmp-server enable traps ethernet cfm cc mep-up mep-down cross-connect loop config
+snmp-server enable traps ethernet cfm crosscheck mep-missing mep-unknown service-up
+snmp-server enable traps memory bufferpeak
+snmp-server enable traps cnpd
+snmp-server enable traps config-copy
+snmp-server enable traps config
+snmp-server enable traps dial
+snmp-server enable traps dsp card-status
+snmp-server enable traps dsp oper-state
+snmp-server enable traps entity
+snmp-server enable traps event-manager
+snmp-server enable traps ipmulticast
+snmp-server enable traps cpu threshold
+snmp-server enable traps syslog
+snmp-server enable traps srst
+snmp-server enable traps voice
+snmp-server host {{ snmp_ip }} {{ snmp_key }} 
+!
+tacacs server tacacs
+ address ipv4 {{ tacacs_ip }}
+ key 7 {{ tacacs_key }}
+!
+!
+!
+!
+!
+voice-port 0/1/2
+ trunk-group {{ site_id }}_trunkgroup
+ no vad
+ timeouts call-disconnect 5
+ timeouts wait-release 5
+ timeouts interdigit 3
+ connection plar {{ plar }}
+ description circuit number {{ pots }}
+ caller-id enable
+!
+!
+!
+ccm-manager music-on-hold
+!
+!
+!
+telephony-service
+ sdspfarm conference mute-on *6 mute-off *7
+ sdspfarm units 2
+ sdspfarm transcode sessions 9
+ mode esrst
+ srst mode auto-provision none
+ srst ephone template 1
+ srst dn line-mode dual
+ moh-file-buffer 2000
+ max-ephones 100
+ max-dn 200
+ ip source-address {{ ip_address }} port 2000
+ max-redirect 20
+ system message primary "SRST Mode: Cisco Unified CME"
+ time-zone 12
+ voicemail {{ vm }}
+ max-conferences 8 gain -6
+ call-forward pattern .T
+ moh enable-g711 "bootflash:moh.wav"
+ multicast moh 239.1.1.1 port 16384 route {{ ip_address }} 1.1.1.1
+ transfer-system full-consult
+ transfer-pattern .T
+ transfer-pattern 592....
+ transfer-pattern 2....
+ transfer-pattern 9450.......
+ transfer-pattern 91..........
+ transfer-pattern 9011T
+ transfer-pattern 9.......
+ secondary-dialtone 9
+ after-hours block pattern 1 91900....... 7-24
+ after-hours block pattern 2 91...976.... 7-24
+ after-hours block pattern 3 91976....... 7-24
+ after-hours block pattern 4 9976.... 7-24
+ after-hours block pattern 5 95551212 7-24
+ after-hours block pattern 6 91...5551212 7-24
+ after-hours block pattern 7 9101.... 7-24
+ after-hours block pattern 8 91700....... 7-24
+ after-hours block pattern 9 91264....... 7-24
+ after-hours block pattern 10 91268....... 7-24
+ after-hours block pattern 11 91242....... 7-24
+ after-hours block pattern 12 91246....... 7-24
+ after-hours block pattern 13 91441....... 7-24
+ after-hours block pattern 14 91284....... 7-24
+ after-hours block pattern 15 91345....... 7-24
+ after-hours block pattern 16 91767....... 7-24
+ after-hours block pattern 17 91809....... 7-24
+ after-hours block pattern 18 91473....... 7-24
+ after-hours block pattern 19 918887000400 7-24
+ after-hours block pattern 20 91787....... 7-24
+ after-hours block pattern 21 91869....... 7-24
+ after-hours block pattern 22 91758....... 7-24
+ after-hours block pattern 23 91784....... 7-24
+ after-hours block pattern 24 91868....... 7-24
+ after-hours block pattern 25 91340....... 7-24
+!
+!
+sip-ua
+registrar ipv4:{{ ip_address }} expires 600
+!
+!
+dial-peer voice 100 voip
+ description 911 Callback (WAN UP) to {{ cucm_1 }}
+ preference 2
+ destination-pattern {{ site_nxx }}....$
+ progress_ind setup enable 3
+ progress_ind progress enable 8
+ session target ipv4:{{ cucm_1 }}
+ voice-class codec 1
+ voice-class h323 1
+ dtmf-relay h245-alphanumeric
+ fax rate disable
+ ip qos dscp cs3 signaling
+ no vad
+!
+dial-peer voice 110 voip
+ description 911 Callback (WAN UP) to {{ cucm_2 }}
+ preference 1
+ destination-pattern {{ site_nxx }}....$
+ progress_ind setup enable 3
+ progress_ind progress enable 8
+ session target ipv4:{{ cucm_2 }}
+ voice-class codec 1
+ voice-class h323 1
+ dtmf-relay h245-alphanumeric
+ fax rate disable
+ ip qos dscp cs3 signaling
+ no vad
+!
+dial-peer voice 2 pots
+ trunkgroup {{ site_id }}_trunkgroup
+ description SRST 911 calling
+ destination-pattern [9]11$
+ progress_ind setup enable 3
+ progress_ind alert enable 8
+ forward-digits 3
+!
+dial-peer voice 3 pots
+ trunkgroup {{ site_id }}_trunkgroup
+ description SRST 911 calling
+ destination-pattern 9911$
+ progress_ind setup enable 3
+ progress_ind alert enable 8
+ forward-digits 3
+!
+dial-peer voice 9 pots
+ trunkgroup {{ site_id }}_trunkgroup
+ translation-profile outgoing STRIP-9
+ description SRST All Other Calling
+ destination-pattern 9T
+ progress_ind setup enable 3
+ progress_ind alert enable 8
+!
+!
+!
+banner exec ^
+^
+!
+line con 0
+ exec-timeout 30 0
+ login local
+ logging synchronous
+line aux 0
+ login local
+ no exec
+line vty 0 15
+ exec-timeout 30 0
+ privilege level 15
+ login local
+ logging synchronous
+ transport input ssh
+!
+ntp server {{ ntp_1 }}

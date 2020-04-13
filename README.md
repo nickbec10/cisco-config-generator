@@ -1,7 +1,7 @@
 CSV Based Config Generator
 ==============
 
-This repository contains a simple configuration generator using python and Jinja2. This one take in a CSV parameter file but could esily be modified to use JSON.
+This repository contains a simple Cisco configuration generator using python and jinja2. This one take in a CSV parameter file but could esily be modified to use JSON.
 
 
 Installation
