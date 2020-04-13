@@ -18,7 +18,7 @@ $ pip install jinja2
 Usage
 -----
 
-The script take 2 command line arguments; a template file to write from and a parameter file to read from.
+The script takes 2 command line arguments; a template file to write from and a parameter file to read from.
 It will output config files into a folder called output.
 
 ```bash
